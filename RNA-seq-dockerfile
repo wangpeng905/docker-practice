@@ -1,0 +1,27 @@
+FROM ubuntu:latest
+RUN mkdir /home/RNA-seq/
+RUN apt-get update \
+	&& apt-get install -y r-base \
+	&& apt-get install -y python python-pip \
+	&& apt-get install -y liblzma-dev libncurses5-dev \
+	&& apt-get install -y wget \
+	&& cd /home/RNA-seq \ 
+	&& wget -c https://github.com/samtools/htslib/releases/download/1.5/htslib-1.5.tar.bz2 \
+	&& tar -jxvf htslib-1.5.tar.bz2 \
+	&& cd htslib-1.5 && autoconf && ./configure && make && make install \
+	&& rm -rf /home/RNA-seq/htslib-1.5.tar.bz2 \
+	&& cd /home/RNA-seq \
+	&& wget -c https://github.com/samtools/samtools/archive/develop.zip \
+	&& unzip develop.zip && cd samtools-develop && autoconf && ./configure && make && make install \
+	&& rm -rf /home/RNA-seq/develop.zip \
+	&& cd /home/RNA-seq \
+	&& wget -c http://ccb.jhu.edu/software/hisat2/downloads/hisat2-2.0.0-beta-source.zip \
+	&& unzip hisat2-2.0.0-beta-source.zip \
+	&& cd hisat2-2.0.0-beta && make \
+	&& echo "export PATH=$PATH:$PWD" >> /etc/profile \
+	&& rm -rf ../hisat2-2.0.0-beta-source.zip && cd ../ \
+	&& apt-get clean \
+	&& apt-get autoclean \
+	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN /bin/bash -c "source /etc/profile"
